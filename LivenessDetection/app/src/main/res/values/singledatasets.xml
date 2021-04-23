@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="singledatasets">
+        <item>Single Dataset #1</item>
+        <item>Single Dataset #2</item>
+        <item>Single Dataset #3</item>
+        <item>Single Dataset #4</item>
+        <item>Single Dataset #5</item>
+    </string-array>
+</resources>

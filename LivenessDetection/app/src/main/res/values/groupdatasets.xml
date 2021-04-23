@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="groupdatasets">
+        <item>Group Datasets #1</item>
+        <item>Group Datasets #2</item>
+        <item>Group Datasets #3</item>
+        <item>Group Datasets #4</item>
+        <item>Group Datasets #5</item>
+    </string-array>
+</resources>
