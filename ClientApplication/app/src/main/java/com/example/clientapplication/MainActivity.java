@@ -1,121 +1,159 @@
 package com.example.clientapplication;
 
-import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
-//import android.support.v7.app.AppCompatActivity;
+import android.os.Handler;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-@SuppressLint("SetTextI18n")
-public class MainActivity extends AppCompatActivity {
-    Thread Thread1 = null;
-    EditText etIP, etPort;
-    TextView tvMessages;
-    EditText etMessage;
-    Button btnSend;
-    String SERVER_IP;
-    int SERVER_PORT;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    public static final int SERVERPORT = 8088;
+
+    public static final String SERVER_IP = "10.0.2.2";
+    private ClientThread clientThread;
+    private Thread thread;
+    private LinearLayout msgList;
+    private Handler handler;
+    private int clientTextColor;
+    private EditText edMessage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        etIP = findViewById(R.id.etIP);
-        etPort = findViewById(R.id.etPort);
-        tvMessages = findViewById(R.id.tvMessages);
-        etMessage = findViewById(R.id.etMessage);
-        btnSend = findViewById(R.id.btnSend);
-        Button btnConnect = findViewById(R.id.btnConnect);
-        btnConnect.setOnClickListener(new View.OnClickListener() {
+
+        setTitle("Client");
+        clientTextColor = ContextCompat.getColor(this, R.color.black);
+        handler = new Handler();
+        msgList = findViewById(R.id.msgList);
+        edMessage = findViewById(R.id.edMessage);
+    }
+
+    public TextView textView(String message, int color) {
+        if (null == message || message.trim().isEmpty()) {
+            message = "<Empty Message>";
+        }
+        TextView tv = new TextView(this);
+        tv.setTextColor(color);
+        tv.setText(message + " [" + getTime() + "]");
+        tv.setTextSize(20);
+        tv.setPadding(0, 5, 0, 0);
+        return tv;
+    }
+
+    public void showMessage(final String message, final int color) {
+        handler.post(new Runnable() {
             @Override
-            public void onClick(View v) {
-                tvMessages.setText("");
-                SERVER_IP = etIP.getText().toString().trim();
-                SERVER_PORT = Integer.parseInt(etPort.getText().toString().trim());
-                Thread1 = new Thread(new Thread1());
-                Thread1.start();
-            }
-        });
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String message = etMessage.getText().toString().trim();
-                if (!message.isEmpty()) {
-                    new Thread(new Thread3(message)).start();
-                }
+            public void run() {
+                msgList.addView(textView(message, color));
             }
         });
     }
-    private PrintWriter output;
-    private BufferedReader input;
-    class Thread1 implements Runnable {
+
+    @Override
+    public void onClick(View view) {
+
+        if (view.getId() == R.id.connect_server) {
+            msgList.removeAllViews();
+            showMessage("Connecting to Server...", clientTextColor);
+            clientThread = new ClientThread();
+            thread = new Thread(clientThread);
+            thread.start();
+            showMessage("Connected to Server...", clientTextColor);
+            return;
+        }
+
+        if (view.getId() == R.id.send_data) {
+            String clientMessage = edMessage.getText().toString().trim();
+            showMessage(clientMessage, Color.BLUE);
+            if (null != clientThread) {
+                clientThread.sendMessage(clientMessage);
+            }
+        }
+    }
+
+    class ClientThread implements Runnable {
+
+        private Socket socket;
+        private BufferedReader input;
+
+        @Override
         public void run() {
-            Socket socket;
+
             try {
-                socket = new Socket(SERVER_IP, SERVER_PORT);
-                output = new PrintWriter(socket.getOutputStream());
-                input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvMessages.setText("Connected\n");
+                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+                socket = new Socket(serverAddr, SERVERPORT);
+
+                while (!Thread.currentThread().isInterrupted()) {
+
+                    this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    String message = input.readLine();
+                    if (null == message || "Disconnect".contentEquals(message)) {
+                        Thread.interrupted();
+                        message = "Server Disconnected.";
+                        showMessage(message, Color.RED);
+                        break;
                     }
-                });
-                new Thread(new Thread2()).start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    class Thread2 implements Runnable {
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    final String message = input.readLine();
-                    if (message!=null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tvMessages.append("server: " + message + "\n");
-                            }
-                        });
-                    } else {
-                        Thread1 = new Thread(new Thread1());
-                        Thread1.start();
-                        return;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    showMessage("Server: " + message, clientTextColor);
                 }
+
+            } catch (UnknownHostException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
+
         }
-    }
-    class Thread3 implements Runnable {
-        private String message;
-        Thread3(String message) {
-            this.message = message;
-        }
-        @Override
-        public void run() {
-            output.write(message);
-            output.flush();
-            runOnUiThread(new Runnable() {
+
+        void sendMessage(final String message) {
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    tvMessages.append("client: " + message + "\n");
-                    etMessage.setText("");
+                    try {
+                        if (null != socket) {
+                            PrintWriter out = new PrintWriter(new BufferedWriter(
+                                    new OutputStreamWriter(socket.getOutputStream())),
+                                    true);
+                            out.println(message);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            });
+            }).start();
+        }
+
+    }
+
+    String getTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        return sdf.format(new Date());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (null != clientThread) {
+            clientThread.sendMessage("Disconnect");
+            clientThread = null;
         }
     }
 }
