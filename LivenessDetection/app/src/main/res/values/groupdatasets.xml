@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="groupdatasets">
-        <item>Group Datasets #1</item>
-        <item>Group Datasets #2</item>
-        <item>Group Datasets #3</item>
-        <item>Group Datasets #4</item>
-        <item>Group Datasets #5</item>
-        <item>Group Datasets #6</item>
-        <item>Group Datasets #7</item>
-        <item>Group Datasets #8</item>
-        <item>Group Datasets #9</item>
-        <item>Group Datasets #10</item>
+        <item>Group Datasets</item>
     </string-array>
 </resources>
