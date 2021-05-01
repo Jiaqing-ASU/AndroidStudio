@@ -30,6 +30,8 @@ public class GroupInputActivity extends AppCompatActivity implements View.OnClic
     private TextView tv_group_preprossing;
     private TextView tv_group_inferring;
 
+    private String selected_result_group;
+
     public static final int SERVERPORT = 8088;
 
     public static final String SERVER_IP = "10.0.2.2";
@@ -44,6 +46,11 @@ public class GroupInputActivity extends AppCompatActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_groupinput);
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            selected_result_group = bundle.getString("selected_item_group");
+        }
 
         clientTextColor = ContextCompat.getColor(this, R.color.black);
         handler = new Handler();
@@ -122,7 +129,7 @@ public class GroupInputActivity extends AppCompatActivity implements View.OnClic
 
     public TextView textView(String message, int color) {
         if (null == message || message.trim().isEmpty()) {
-            message = "<Empty Message>";
+            message = selected_result_group;
         }
         TextView tv = new TextView(this);
         tv.setTextColor(color);

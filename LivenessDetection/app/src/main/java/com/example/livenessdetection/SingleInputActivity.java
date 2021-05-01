@@ -30,6 +30,8 @@ public class SingleInputActivity extends AppCompatActivity implements View.OnCli
     private TextView tv_single_preprossing;
     private TextView tv_single_inferring;
 
+    private String selected_result_single;
+
     public static final int SERVERPORT = 8088;
 
     public static final String SERVER_IP = "10.0.2.2";
@@ -44,6 +46,11 @@ public class SingleInputActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_singleinput);
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            selected_result_single = bundle.getString("selected_item_single");
+        }
 
         clientTextColor = ContextCompat.getColor(this, R.color.black);
         handler = new Handler();
@@ -122,7 +129,7 @@ public class SingleInputActivity extends AppCompatActivity implements View.OnCli
 
     public TextView textView(String message, int color) {
         if (null == message || message.trim().isEmpty()) {
-            message = "<Empty Message>";
+            message = selected_result_single;
         }
         TextView tv = new TextView(this);
         tv.setTextColor(color);
