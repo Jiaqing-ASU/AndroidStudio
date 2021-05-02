@@ -129,7 +129,7 @@ public class GroupInputActivity extends AppCompatActivity implements View.OnClic
 
     public TextView textView(String message, int color) {
         if (null == message || message.trim().isEmpty()) {
-            message = "all";
+            message = "0";
         }
         TextView tv = new TextView(this);
         tv.setTextColor(color);

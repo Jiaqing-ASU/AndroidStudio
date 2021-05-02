@@ -25,7 +25,7 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class SingleInputActivity extends AppCompatActivity implements View.OnClickListener{
+public class SingleInputActivity extends AppCompatActivity {
 
     private TextView tv_single_preprossing;
     private TextView tv_single_inferring;
@@ -68,54 +68,79 @@ public class SingleInputActivity extends AppCompatActivity implements View.OnCli
         tv_single_inferring.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         Button bt_single_pro = (Button)findViewById(R.id.button3);
+
+
+
         bt_single_pro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tv_single_preprossing.setText("Preprossing Working");
-                Handler handler = new Handler();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tv_single_preprossing.setText("Preprossing Finished");
-                                try {
-                                    Thread.sleep(5000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    }
-                });
+                msgList.removeAllViews();
+                showMessage("Connecting to Server...", clientTextColor);
+                clientThread = new ClientThread();
+                thread = new Thread(clientThread);
+                thread.start();
+                showMessage("Connected to Server...", clientTextColor);
+                return;
             }
         });
+//        bt_single_pro.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                tv_single_preprossing.setText("Preprossing Working");
+//                Handler handler = new Handler();
+//                handler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                tv_single_preprossing.setText("Preprossing Finished");
+//                                try {
+//                                    Thread.sleep(5000);
+//                                } catch (InterruptedException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        });
+//                    }
+//                });
+//            }
+//        });
 
         Button bt_single_inf = (Button)findViewById(R.id.button4);
         bt_single_inf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tv_single_inferring.setText("Inferring Working");
-                Handler handler = new Handler();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tv_single_inferring.setText("Inferring Finished");
-                                try {
-                                    Thread.sleep(15000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    }
-                });
+                String clientMessage = selected_result_single;
+                showMessage(clientMessage, Color.BLUE);
+                if (null != clientThread) {
+                    clientThread.sendMessage(clientMessage);
+                }
             }
         });
+//        bt_single_inf.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                tv_single_inferring.setText("Inferring Working");
+//                Handler handler = new Handler();
+//                handler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                tv_single_inferring.setText("Inferring Finished");
+//                                try {
+//                                    Thread.sleep(15000);
+//                                } catch (InterruptedException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        });
+//                    }
+//                });
+//            }
+//        });
 
         Button bt_single_return = (Button)findViewById(R.id.button5);
         bt_single_return.setOnClickListener(new View.OnClickListener() {
@@ -148,27 +173,24 @@ public class SingleInputActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    @Override
-    public void onClick(View view) {
-
-        if (view.getId() == R.id.button3) {
-            msgList.removeAllViews();
-            showMessage("Connecting to Server...", clientTextColor);
-            clientThread = new ClientThread();
-            thread = new Thread(clientThread);
-            thread.start();
-            showMessage("Connected to Server...", clientTextColor);
-            return;
-        }
-
-        if (view.getId() == R.id.button3) {
-            String clientMessage = edMessage.getText().toString().trim();
-            showMessage(clientMessage, Color.BLUE);
-            if (null != clientThread) {
-                clientThread.sendMessage(clientMessage);
-            }
-        }
-    }
+//    @Override
+//    public void onClick(View view) {
+//        if (view.getId() == R.id.button3) {
+//            msgList.removeAllViews();
+//            showMessage("Connecting to Server...", clientTextColor);
+//            clientThread = new ClientThread();
+//            thread = new Thread(clientThread);
+//            thread.start();
+//            showMessage("Connected to Server...", clientTextColor);
+//            String clientMessage = selected_result_single.trim();
+//            showMessage(clientMessage, Color.BLUE);
+//            if (null != clientThread) {
+//                clientThread.sendMessage(clientMessage);
+//            }
+//            return;
+//        }
+//
+//    }
 
     class ClientThread implements Runnable {
 
