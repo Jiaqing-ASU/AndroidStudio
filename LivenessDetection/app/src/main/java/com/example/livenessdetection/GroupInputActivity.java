@@ -25,7 +25,7 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class GroupInputActivity extends AppCompatActivity implements View.OnClickListener{
+public class GroupInputActivity extends AppCompatActivity{
 
     private TextView tv_group_preprossing;
     private TextView tv_group_inferring;
@@ -71,24 +71,13 @@ public class GroupInputActivity extends AppCompatActivity implements View.OnClic
         bt_group_pro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tv_group_preprossing.setText("Preprossing Working");
-                Handler handler = new Handler();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tv_group_preprossing.setText("Preprossing Finished");
-                                try {
-                                    Thread.sleep(5000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    }
-                });
+                msgListG.removeAllViews();
+                showMessage("Connecting to Server...", clientTextColor);
+                clientThread = new GroupInputActivity.ClientThread();
+                thread = new Thread(clientThread);
+                thread.start();
+                showMessage("Connected to Server...", clientTextColor);
+                return;
             }
         });
 
@@ -96,24 +85,11 @@ public class GroupInputActivity extends AppCompatActivity implements View.OnClic
         bt_group_inf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tv_group_inferring.setText("Inferring Working");
-                Handler handler = new Handler();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tv_group_inferring.setText("Inferring Finished");
-                                try {
-                                    Thread.sleep(15000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    }
-                });
+                String clientMessage = selected_result_group;
+                showMessage(clientMessage, Color.BLUE);
+                if (null != clientThread) {
+                    clientThread.sendMessage(clientMessage);
+                }
             }
         });
 
@@ -146,27 +122,6 @@ public class GroupInputActivity extends AppCompatActivity implements View.OnClic
                 msgListG.addView(textView(message, color));
             }
         });
-    }
-
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.button6) {
-            msgListG.removeAllViews();
-            showMessage("Connecting to Server...", clientTextColor);
-            clientThread = new ClientThread();
-            thread = new Thread(clientThread);
-            thread.start();
-            showMessage("Connected to Server...", clientTextColor);
-            return;
-        }
-
-        if (view.getId() == R.id.button7) {
-            String clientMessage = edMessage.getText().toString().trim();
-            showMessage(clientMessage, Color.BLUE);
-            if (null != clientThread) {
-                clientThread.sendMessage(clientMessage);
-            }
-        }
     }
 
     class ClientThread implements Runnable {
