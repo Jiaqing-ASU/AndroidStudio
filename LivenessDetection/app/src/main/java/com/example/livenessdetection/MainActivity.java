@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,16 +20,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Spinner sp_select_single = (Spinner)findViewById(R.id.spinner);
-        sp_select_single.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id){
-                selected_result_single = (String) sp_select_single.getSelectedItem();
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+        EditText et_select_single = (EditText)findViewById(R.id.editText);
 
         Spinner sp_select_group = (Spinner)findViewById(R.id.spinner2);
         sp_select_group.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
@@ -46,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent_single = new Intent(MainActivity.this, SingleInputActivity.class);
+                selected_result_single = et_select_single.getText().toString();
                 intent_single.putExtra("selected_item_single",selected_result_single);
                 startActivity(intent_single);
             }
